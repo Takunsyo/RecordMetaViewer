@@ -1,10 +1,7 @@
-﻿using System;
+﻿using RecordMetaViewer.Data;
 using System.Collections.Generic;
-using System.Configuration;
-using System.Data;
-using System.Linq;
-using System.Threading.Tasks;
 using System.Windows;
+using System.Linq;
 
 namespace RecordMetaViewer
 {
@@ -13,5 +10,21 @@ namespace RecordMetaViewer
     /// </summary>
     public partial class App : Application
     {
+
+        private void Application_Startup(object sender, StartupEventArgs e)
+        {
+            Helper.Channels = Helper.GetChannels();
+            MainWindow mw;
+            if (e.Args.Length <= 0)
+            {
+                mw = new MainWindow();
+            }
+            else
+            {
+                mw = new MainWindow(e.Args.First());
+            }
+            mw.Show();
+        }
+
     }
 }
