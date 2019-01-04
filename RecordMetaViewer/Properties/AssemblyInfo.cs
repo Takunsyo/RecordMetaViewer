@@ -8,7 +8,7 @@ using System.Windows;
 // 控制。更改这些特性值可修改
 // 与程序集关联的信息。
 [assembly: AssemblyTitle("RecordMetaViewer")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyDescription("https://github.com/Takunsyo/RecordMetaViewer")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("RecordMetaViewer")]
