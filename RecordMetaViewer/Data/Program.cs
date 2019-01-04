@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
 using System.Globalization;
-using System.Text.RegularExpressions;
 
 namespace RecordMetaViewer.Data
 {
@@ -58,53 +59,12 @@ namespace RecordMetaViewer.Data
                 return (this.startAt <= tnow) && (this.endAt > tnow);
             }
         }
-        public ProgramGenre Genre
-        {
-            get
-            {
-                return (ProgramGenre)(1 << this.genre1);
-            }
-        }
-        public string GenreString
-        {
-            get
-            {
-                return ((ProgramGenre)(1 << this.genre1)).ToString();
-            }
-        }
-        public string SubGenre
-        {
-            get
-            {
-                switch (this.Genre)
-                {
-                    case ProgramGenre.Anime:
-                        return ((AnimeGenre)(1 << this.genre2)).ToString();
-                    case ProgramGenre.Documantry:
-                        return ((DocumantryGenre)(1 << this.genre2)).ToString();
-                    case ProgramGenre.Drama:
-                        return ((DramaGenre)(1 << this.genre2)).ToString();
-                    case ProgramGenre.Education:
-                        return ((EducationGenre)(1 << this.genre2)).ToString();
-                    case ProgramGenre.Infomation:
-                        return ((EducationGenre)(1 << this.genre2)).ToString();
-                    case ProgramGenre.Live:
-                        return ((LiveGenre)(1 << this.genre2)).ToString();
-                    case ProgramGenre.Movie:
-                        return ((MovieGenre)(1 << this.genre2)).ToString();
-                    case ProgramGenre.Music:
-                        return ((MusicGenre)(1 << this.genre2)).ToString();
-                    case ProgramGenre.News:
-                        return ((NewsGenre)(1 << this.genre2)).ToString();
-                    case ProgramGenre.Sports:
-                        return ((SportsGenre)(1 << this.genre2)).ToString();
-                    case ProgramGenre.Variety:
-                        return ((VarietyGenre)(1 << this.genre2)).ToString();
-                    default:
-                        return "";
-                }
-            }
-        }
+
+        public ProgramGenre Genre => (ProgramGenre)(1 << this.genre1);
+
+        public string GenreString => (1 << this.genre1).GetDescription<ProgramGenre>();
+
+        public string SubGenre => (1 << this.genre2).GetDescription(this.Genre);
 
         public string ChannelName => Helper.GetChannelName(channelId);
 

@@ -12,5 +12,10 @@ namespace RecordMetaViewer.ViewModel
         /// Event to notify a property's content has been modified.
         /// </summary>
         public event PropertyChangedEventHandler PropertyChanged = (sender,e) => { };
+
+        public void NotifyPropertyChanged(string propertyname)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyname));
+        }
     }
 }

@@ -20,7 +20,7 @@ namespace RecordMetaViewer.Data
 
         private byte[] mMeta { get; set; }
 
-        public byte[] mLogo { get;}
+        internal byte[] mLogo { get;}
 
         public Image Logo
         {
@@ -35,7 +35,7 @@ namespace RecordMetaViewer.Data
             }
         }
 
-        public byte[] mThumb { get;}
+        internal byte[] mThumb { get; private set; }
 
         public Image ThumbImage
         {
@@ -46,6 +46,15 @@ namespace RecordMetaViewer.Data
                     if (mThumb == null || mThumb.Length <= 0) return null;
                     st.Write(mThumb, 0, mThumb.Length);
                     return Image.FromStream(st);
+                }
+            }
+            set
+            {
+                using(MemoryStream st = new MemoryStream())
+                {
+                    if (value == null) mThumb = null;
+                    value.Save(st, System.Drawing.Imaging.ImageFormat.Png);
+                    mThumb = st.ToArray();
                 }
             }
         }
@@ -63,7 +72,7 @@ namespace RecordMetaViewer.Data
             }
         }
 
-        private byte[] Body
+        internal byte[] Body
         {
             get
             {
@@ -78,14 +87,13 @@ namespace RecordMetaViewer.Data
             this.mLogo = cLogo;
             this.mThumb = thumb;
         }
-
-
-        public byte[] GetBytes()
+        
+        internal byte[] GetBytes()
         {
             return this.Header.AppendArray(Body);
         }
 
-        public static MetaFile ReadByte(byte[] data)
+        internal protected static MetaFile ReadByte(byte[] data)
         {
             for (int i = 0; i <= 3; i++)
             {
