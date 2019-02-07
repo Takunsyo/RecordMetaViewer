@@ -123,7 +123,7 @@ namespace RecordMetaViewer.ViewModel
             if (baseData is null) return;
             if(File.Exists(Helper.FFMpegPath)&& File.Exists(this.FilePath))
             {
-                baseData.ThumbImage = Helper.GetThumbnail(this.FilePath);
+                baseData.SetThumbImage(Helper.GetThumbnailAsync(this.FilePath).Result);
                 NotifyPropertyChanged(nameof(this.Thumbnail));
             }
         }

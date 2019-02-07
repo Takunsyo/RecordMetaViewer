@@ -37,6 +37,8 @@ namespace RecordMetaViewer.Data
 
         internal byte[] mThumb { get; private set; }
 
+        public void SetThumbImage(byte[] image) => mThumb = image;
+
         public Image ThumbImage
         {
             get

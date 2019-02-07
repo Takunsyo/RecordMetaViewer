@@ -13,6 +13,7 @@ namespace RecordMetaViewer
 
         private void Application_Startup(object sender, StartupEventArgs e)
         {
+            Helper.textmethod();
             Helper.Channels = Helper.GetChannels();
             MainWindow mw;
             if (e.Args.Length <= 0)

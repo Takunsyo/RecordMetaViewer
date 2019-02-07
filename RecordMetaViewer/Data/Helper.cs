@@ -7,6 +7,7 @@ using System.Reflection;
 using System.IO.Pipes;
 using System.Diagnostics;
 using System.Drawing;
+using System.Threading.Tasks;
 
 namespace RecordMetaViewer.Data
 {
@@ -187,7 +188,7 @@ namespace RecordMetaViewer.Data
             Channels.First(x => x.id == id)?.name;
 
         /// <summary>
-        /// Get description string defined by <see cref="DescriptionAttribute"/> 
+        /// Get description string defined by <see cref="EnumDescriptionAttribute"/> 
         /// attribute from an <see cref="Enum"/> object.
         /// </summary>
         /// <param name="value">An <see cref="Enum"/> value.</param>
@@ -287,9 +288,15 @@ namespace RecordMetaViewer.Data
 
         public static readonly string FFMpegPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "ffmpeg.exe");
 
-        public static Image GetThumbnail(string path)
+        /// <summary>
+        /// Get thumbnail image from .TS Video file using FFMpeg. This method is not stable.
+        /// </summary>
+        /// <param name="path">Video file full path.</param>
+        /// <param name="timeCode">Time code string in format of "hh:mm:ss.miliseconds".</param>
+        /// <returns>A <see cref="Image"/> object.</returns>
+        public static Image GetThumbnail(string path,string timeCode)
         {
-            string ffcmd = $@"-i ""{path}"" -ss 00:03:00 -s 480x270 -t 1 -f mjpeg pipe:1";
+            string ffcmd = $@"-i ""{path}"" -ss {timeCode} -s 480x270 -t 1 -f mjpeg pipe:1";
 
             var ffProcess = new Process()
             {
@@ -306,6 +313,85 @@ namespace RecordMetaViewer.Data
             var result = Image.FromStream(ffProcess.StandardOutput.BaseStream);
             ffProcess.WaitForExit();
             return result;
+        }
+
+        /// <summary>
+        /// Get thumbnail image from .TS video file at 3sec start of the video using FFMpeg. This method is not stable.
+        /// </summary>
+        /// <param name="path">Video file full path.</param>
+        /// <returns>A <see cref="Image"/> object.</returns>
+        public static Image GetThumbnail(string path) => GetThumbnail(path, "00:03:00");
+
+        /// <summary>
+        /// Get thumbnail image from .TS Video file using FFMpeg. This method is not stable.
+        /// </summary>
+        /// <param name="path">Video file full path.</param>
+        /// <param name="time">A <see cref="TimeSpan"/> for the time to the video.</param>
+        /// <returns>A <see cref="Image"/> object.</returns>
+        public static Image GetThumbnail(string path, TimeSpan time) => GetThumbnail(path, time.ToString("hh:mm:ss"));
+
+        /// <summary>
+        /// Async get a thumbnail image in <see cref="byte"/> array from a *.TS file using FFMpeg.
+        /// </summary>
+        /// <param name="path">*.TS media file full path.</param>
+        /// <param name="timeCode">A timecode string in format of "hh:mm:ss.miliseconds".</param>
+        /// <returns>A <see cref="byte"/> array represent a mjpeg image object.</returns>
+        public static async Task<byte[]> GetThumbnailAsync(string path,string timeCode)
+        {
+            string ffcmd = $@"-i ""{path}"" -ss {timeCode} -s 480x270 -t 1 -f mjpeg pipe:1";
+
+            var ffProcess = new Process()
+            {
+                StartInfo = new ProcessStartInfo()
+                {
+                    FileName = FFMpegPath,
+                    Arguments = ffcmd,
+                    WindowStyle = ProcessWindowStyle.Hidden,
+                    UseShellExecute = false,
+                    RedirectStandardOutput = true
+                }
+            };
+            ffProcess.Start();
+            var result = new byte[0];
+            using (var st = ffProcess.StandardOutput.BaseStream)
+            {
+                int counter = 0;
+                do
+                {
+                    var buffer = new byte[1024];
+                    counter = await st.ReadAsync(buffer, 0, 1024);
+                    result.AppendArray(buffer);
+                } while (counter != 0);
+            }
+
+            ffProcess.WaitForExit();
+            return result;
+        }
+
+        /// <summary>
+        /// Async get a thumbnail image in <see cref="byte"/> array from a *.TS file at 3sec at the start of the video using ffmpeg.
+        /// </summary>
+        /// <param name="path">*.TS media file full path.</param>
+        /// <returns>A <see cref="byte"/> array represent a mjpeg image object.</returns>
+        public static async Task<byte[]> GetThumbnailAsync(string path) =>await GetThumbnailAsync(path, "00:03:00");
+
+        /// <summary>
+        /// Async get a thumbail image in <see cref="byte"/> array from a *.TS file at 3sec at the start of the video using ffmpeg.
+        /// </summary>
+        /// <param name="path">*.TS media file full path.</param>
+        /// <param name="time">A <see cref="TimeSpan"/> object for time of the image at the video.</param>
+        /// <returns>A <see cref="byte"/> array represent a mjpeg image object.</returns>
+        public static async Task<byte[]> GetThumbnailAsync(string path, TimeSpan time) => await GetThumbnailAsync(path, time.ToString("hh:mm:ss"));
+
+        public static void textmethod()
+        {
+            var path = @"C:\Users\VideoRecoder\Desktop\newFile.rtf";
+            using (var reader = new StreamReader(path, System.Text.Encoding.ASCII))
+            {
+                var RTFBody = reader.ReadToEnd();
+
+                Console.WriteLine(RTFBody);
+            }
         }
     }
 }
